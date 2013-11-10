@@ -15,9 +15,14 @@ function Game() {
 	// frame count
 	this.frameCount = 0;
 
-	// game variables
+	/*-----------------------------------------------
+	 * Game Variables
+	 *----------------------------------------------- */
 	// array of battle field
 	this.field = null;
+
+	// current puyo object
+	this.cur = null;
 
 
 }
@@ -64,15 +69,24 @@ Game.prototype = {
 				}
 			}
 		}
+
+		// current puyo
+		if( this.cur != null ) {
+			this.cur.draw(g, 0, 0);
+		}
 	},
 
 	// create new current puyo
-	createCurrent: function() {
+	createCurrentPuyo: function() {
 
 	},
 
 	// start game
 	startGame: function() {
+		// prepare current puyo
+		this.createCurrentPuyo();
+
+
 		// run thread
 		this.timer_old = (new Date).getTime();
 		this.thread = setInterval( function(self){ self.mainLoop() }, 1, this);
@@ -162,7 +176,7 @@ Puyo.prototype = {
 			this.pos[0] + ( Game.CENTER_W + Game.FIELD_W) * this.which,
 			this.pos[1] + Game.OJAMA_H,
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-	}
+	},
 
 	// let the puyo fall n boxes
 	fall : function(n) {

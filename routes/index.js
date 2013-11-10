@@ -12,5 +12,5 @@ exports.login = function(req, res) {
 };
 
 exports.main = function(req, res) {
-	res.render('main', { title: 'ロビー'});
+	res.render('main', { title: 'ロビー', username: "req.user.username"});
 };

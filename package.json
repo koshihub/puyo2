@@ -9,6 +9,10 @@
     "express": "3.4.1",
     "ejs": "*",
     "mongoose": "3.x",
+    "socket.io": "*",
+    "cookie": "*",
+    "connect": "*",
+    "connect-redis": "*",
     "passport": "*",
     "passport-twitter": "*"
   }

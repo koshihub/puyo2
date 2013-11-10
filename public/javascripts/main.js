@@ -3,6 +3,7 @@ function Main() {
 
 	this.dom = null;
 	this.game = null;
+	this.network = null;
 	this.canvas = null;
 
 }
@@ -26,18 +27,26 @@ Main.prototype = {
 
 	// enter room
 	enterRoom: function(n) {
+		var self = this;
 
-		// check if the user can enter the room
-		// ******
+		// send enter room request
+		network.sendMessage('room:enter', {roomID: n}, function(ret) {
 
-		// set dom
-		this.dom.set(Dom.BATTLE);
+			if( ret.result ) {
+				// set dom
+				self.dom.set(Dom.BATTLE);
 
-		// init game object
-		this.game = new Game();
-		this.game.init();
+				// init game object
+				self.game = new Game();
+				self.game.init();
 
-		this.game.startGame();
+				self.game.startGame();
+			}
+			else {
+				console.log(ret.message);
+			}
+
+		});
 	},
 };
 
