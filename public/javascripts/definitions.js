@@ -5,7 +5,7 @@
 
 Dom.LOBBY = 0;
 Dom.BATTLE = 1;
-
+Dom.FREEZE = 2;
 
 /*
  * Game

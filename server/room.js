@@ -29,7 +29,7 @@ Room.prototype = {
 				return;
 			}
 
-			console.log(socket.handshake.session);
+			// console.log(socket.handshake.session);
 
 			// save the member
 			var members = [];
@@ -47,6 +47,10 @@ Room.prototype = {
 				return;
 			}
 
+			// broadcast
+			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.session.userIndo});
+
+			// success
 			func({result: true, members: members});
 		});
 

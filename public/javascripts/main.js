@@ -2,7 +2,7 @@
 function Main() {
 
 	this.dom = null;
-	this.game = null;
+	xthis.game = null;
 	this.network = null;
 	this.canvas = null;
 
@@ -22,6 +22,14 @@ Main.prototype = {
 
 		// set dom
 		this.dom.set(Dom.LOBBY);
+
+	},
+
+	// freeze the application
+	freeze: function(err) {
+
+		// show freeze dialog
+		this.dom.set(Dom.FREEZE);
 
 	},
 

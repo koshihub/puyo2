@@ -49,7 +49,7 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
-  app.use(express.errorHandler());
+    app.use(express.errorHandler());
 });
 
 passport.serializeUser(function(user, done) {
@@ -119,9 +119,10 @@ io.set('authorization', function(handshakeData, callback) {
                 console.log('session not found');
                 callback('session not found', false);
             }
+            else if( !("user" in session.passport) ) {
+                callback('passport info not found', false);
+            }
             else {
-                console.log("authorization success");
- 
                 // socket.ioからもセッションを参照できるようにする
                 handshakeData.cookie = cookie;
                 handshakeData.sessionID = sessionID;
@@ -140,8 +141,6 @@ io.set('authorization', function(handshakeData, callback) {
 	} else {
 		return callback('No cookie transmitted.', false);
 	} 
-
-	callback(null, true);
 });
 
 

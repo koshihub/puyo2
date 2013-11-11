@@ -2,11 +2,16 @@
 
 function Dom() {
 	// doms
+	// room button
 	this.dom_roombutton = document.createElement("div");
 	this.dom_roombutton.setAttribute("class", "room_button");
 
+	// canvas
 	this.dom_canvas = document.createElement("canvas");
 	this.dom_canvas.setAttribute("id", "canvas");
+
+	// freeze dialog
+	this.dom_freeze = document.createElement("div");
 };
 
 Dom.prototype = {
@@ -36,8 +41,36 @@ Dom.prototype = {
 			obj.height = Game.CANVAS_H;
 			document.body.appendChild(obj);
 			break;
+			
+		// freeze
+		case Dom.FREEZE:
+			document.body.innerHTML = "";
+
+			// freeze
+			var obj = this.dom_freeze.cloneNode(true);
+			obj.innerHTML = "reload";
+			document.body.appendChild(obj);
+			break;
 		}
 	},
+
+/*
+	// debugging window
+	showDebug: function() {
+		var textarea = document.createElement("div");
+		textarea.setAttribute("id", "debug");
+		document.body.appendChild(textarea);
+	},
+
+	// debugPrint
+	debugPrint: function(text) {
+		var obj = document.getElementByID("debug");
+		var t = obj.innerHTML + "<br>" + text;
+		if( obj ) {
+			obj.innerHTML = t;
+		}
+	}
+*/
 
 	// check canvas
 	checkCanvas: function() {
