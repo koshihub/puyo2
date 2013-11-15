@@ -130,11 +130,12 @@ io.set('authorization', function(handshakeData, callback) {
                 handshakeData.session = new express.session.Session(handshakeData, session);
 
                 // Make it easy to retrieve user data
-                handshakeData.session.userInfo = {
+                handshakeData.userInfo = {
                 	username: handshakeData.session.passport.user.username,
+                	rate: 1500,
                 };
 
-                console.log("session: " + handshakeData.session.userInfo.username);
+                console.log(handshakeData);
 
                 callback(null, true);
             }

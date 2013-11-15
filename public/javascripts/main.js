@@ -1,11 +1,18 @@
 
 function Main() {
 
+	// class
 	this.dom = null;
 	this.game = null;
 	this.network = null;
 	this.canvas = null;
 
+	// rooms
+	this.roomCount = 20;
+	this.rooms = new Array(this.roomCount);
+	for (var i=0; i<this.roomCount; i++) {
+		this.rooms[i] = new RoomState();
+	}
 }
 
 Main.prototype = {
@@ -39,7 +46,7 @@ Main.prototype = {
 	},
 
 	// enter room
-	enterRoom: function(n) {
+	roomEnter: function(n) {
 		var self = this;
 
 		// send enter room request
@@ -61,6 +68,37 @@ Main.prototype = {
 
 		});
 	},
+
+	// someone entered room
+	roomEntered: function(roomID, userInfo) {
+
+		if(roomID >= 0 && roomID < this.roomCount) {
+			if( this.rooms[roomID].members.length < 2 ) {
+				// push the member
+				this.rooms[roomID].members.push(userInfo);
+			}
+
+			console.log(this.rooms[roomID].members);
+
+			// change state
+			this.dom.changeRoomState(roomID, this.rooms[roomID].members);
+		}
+
+	},
 };
 
 var main = new Main();
+
+
+/*
+ * State of Each Room
+ */
+function RoomState() {
+
+	this.members = [];
+
+}
+
+RoomState.prototype = {
+
+};

@@ -27,7 +27,7 @@ Dom.prototype = {
 			// room buttons
 			for( var i=0; i<20; i++ ) {
 				var obj = this.dom_roombutton.cloneNode(true);
-				obj.setAttribute("onclick", "main.enterRoom(" + i + ");");
+				obj.setAttribute("onclick", "main.roomEnter(" + i + ");");
 				obj.setAttribute("id", "room_button" + i);
 				document.body.appendChild(obj);
 			}
@@ -56,10 +56,21 @@ Dom.prototype = {
 	},
 
 	// change room state
-	changeRoomState: function(id, userinfo) {
+	changeRoomState: function(id, members) {
 
 		var obj = document.getElementById("room_button" + id);
+		var html = "";
 
+		for(var i=0; i<members.length; i++) {
+			html += members[i].username + "(" + members[i].rate + ")<br>";
+		}
+		obj.innerHTML = html;
+
+		// full
+		if( members.length == 2 ) {
+			obj.setAttribute("class", "room_button_full");
+		}
+		
 	},
 
 /*

@@ -31,13 +31,13 @@ Room.prototype = {
 
 			// save the member
 			var members = [];
-			if( self.rooms[roomID].member.length < 2 ) {
+			if( self.rooms[roomID].members.length < 2 ) {
 				// push the member session
-				self.rooms[roomID].member.push(socket.handshake.session);
+				self.rooms[roomID].members.push(socket.handshake);
 
 				// create usernames
-				for( var i=0; i<self.rooms[roomID].member.length; i++ ) {
-					members[i] = self.rooms[roomID].member[i].userInfo;
+				for( var i=0; i<self.rooms[roomID].members.length; i++ ) {
+					members[i] = self.rooms[roomID].members[i].userInfo;
 					// console.log(members[i]);
 				}
 			} else {
@@ -61,12 +61,18 @@ Room.prototype = {
 
 	},
 
+	// disconnected event
+	disconnectedUser: function(handshake) {
+
+		console.log(handshake.sessionID);
+	},
+
 	// debug
 	printStatus: function() {
 		for( var i=0; i<this.roomCount; i++ ) {
 			console.log("room[" + i + "] : ");
-			for( var j=0; j<this.rooms[i].member.length; j++ ) {
-				console.log(this.rooms[i].member[j].userInfo);
+			for( var j=0; j<this.rooms[i].members.length; j++ ) {
+				console.log(this.rooms[i].members[j].userInfo);
 			}
 		}
 	}
@@ -78,7 +84,7 @@ Room.prototype = {
  */
  function RoomState() {
 
- 	this.member = [];
+ 	this.members = [];
 
  }
 

@@ -27,7 +27,7 @@ Network.prototype = {
 			self.socket.on("room:entered", function(message) {
 
 				// update the dom
-				main.dom.changeRoomState(message.roomID, message.userInfo);
+				main.roomEntered(message.roomID, message.userInfo);
 
 			});
 

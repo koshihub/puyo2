@@ -18,6 +18,18 @@ div.room_button {
 	float: left;
 }
 
+div.room_button_full {
+	width: 200px;
+	height: 50px;
+	margin: 10px;
+	border: solid 1px #999999;
+	background-color: #eeaaaa;
+
+	cursor: normal;
+	text-align: center;
+	float: left;
+}
+
 div.room_button:hover {
 	width: 200px;
 	height: 50px;
