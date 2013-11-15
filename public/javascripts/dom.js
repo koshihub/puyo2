@@ -12,6 +12,7 @@ function Dom() {
 
 	// freeze dialog
 	this.dom_freeze = document.createElement("div");
+	this.dom_freeze.innerHTML = "<a href='/login'>login page</a>";
 };
 
 Dom.prototype = {
@@ -27,6 +28,7 @@ Dom.prototype = {
 			for( var i=0; i<20; i++ ) {
 				var obj = this.dom_roombutton.cloneNode(true);
 				obj.setAttribute("onclick", "main.enterRoom(" + i + ");");
+				obj.setAttribute("id", "room_button" + i);
 				document.body.appendChild(obj);
 			}
 			break;
@@ -48,10 +50,16 @@ Dom.prototype = {
 
 			// freeze
 			var obj = this.dom_freeze.cloneNode(true);
-			obj.innerHTML = "reload";
 			document.body.appendChild(obj);
 			break;
 		}
+	},
+
+	// change room state
+	changeRoomState: function(id, userinfo) {
+
+		var obj = document.getElementById("room_button" + id);
+
 	},
 
 /*

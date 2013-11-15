@@ -24,7 +24,7 @@ Server.prototype = {
 		        socket.handshake.session.reload(function() {
 		            socket.handshake.session.touch().save();
 		        });
-		    }, 60 * 2 * 1000);
+		    }, 1000);
 
 		    // set room related event
 		    self.room.setEvents(socket);

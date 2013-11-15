@@ -29,8 +29,6 @@ Room.prototype = {
 				return;
 			}
 
-			// console.log(socket.handshake.session);
-
 			// save the member
 			var members = [];
 			if( self.rooms[roomID].member.length < 2 ) {
@@ -40,7 +38,7 @@ Room.prototype = {
 				// create usernames
 				for( var i=0; i<self.rooms[roomID].member.length; i++ ) {
 					members[i] = self.rooms[roomID].member[i].userInfo;
-					console.log(members[i]);
+					// console.log(members[i]);
 				}
 			} else {
 				func({result: false, message: "The room is full"});
@@ -48,10 +46,12 @@ Room.prototype = {
 			}
 
 			// broadcast
-			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.session.userIndo});
+			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.session.userInfo});
 
 			// success
 			func({result: true, members: members});
+
+			self.printStatus();
 		});
 
 		// leave a room
@@ -60,6 +60,16 @@ Room.prototype = {
 		});
 
 	},
+
+	// debug
+	printStatus: function() {
+		for( var i=0; i<this.roomCount; i++ ) {
+			console.log("room[" + i + "] : ");
+			for( var j=0; j<this.rooms[i].member.length; j++ ) {
+				console.log(this.rooms[i].member[j].userInfo);
+			}
+		}
+	}
 
 };
 

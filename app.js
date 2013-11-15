@@ -134,6 +134,8 @@ io.set('authorization', function(handshakeData, callback) {
                 	username: handshakeData.session.passport.user.username,
                 };
 
+                console.log("session: " + handshakeData.session.userInfo.username);
+
                 callback(null, true);
             }
         });

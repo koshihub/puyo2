@@ -2,7 +2,7 @@
 function Main() {
 
 	this.dom = null;
-	xthis.game = null;
+	this.game = null;
 	this.network = null;
 	this.canvas = null;
 
@@ -12,6 +12,11 @@ Main.prototype = {
 	// initialize
 	init: function() {
 
+		// network
+		this.network = new Network();
+		network.init();
+
+		// dom
 		this.dom = new Dom();
 
 		// canvas check

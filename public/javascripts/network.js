@@ -2,28 +2,44 @@
 function Network() {
 	
 	// connect
-	this.socket = new io.connect('/');
+	this.socket = null; //new io.connect('/');
 
-	// error event
-	this.socket.on('error', function(err) {
-		main.freeze("disconnected from the sever");
-	});
-
-	// connect event
-	this.socket.on('connect', function() {
-
-		// someone entered a room
-		this.socket.on("room:entered", function(message) {
-
-			// update the dom
-			//
-
-			console.log(message);
-		});
-	});
 }
 
 Network.prototype = {
+
+	// initialize
+	init: function() {
+		var self = this;
+
+		// connect to server
+		self.socket = new io.connect('/');
+
+		// error event
+		self.socket.on('error', function(err) {
+			main.freeze("disconnected from the sever");
+		});
+
+		// connect event
+		self.socket.on('connect', function() {
+
+			// someone entered a room
+			self.socket.on("room:entered", function(message) {
+
+				// update the dom
+				main.dom.changeRoomState(message.roomID, message.userInfo);
+
+			});
+
+		});
+
+		// dissconnect event
+		self.socket.on('disconnect', function() {
+			console.log("disconnect");
+			main.freeze("disconnected from the sever");
+		});
+
+	},
 
 	// send message
 	sendMessage: function(message, data, callback) {
