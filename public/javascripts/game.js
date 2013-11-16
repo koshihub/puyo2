@@ -21,8 +21,10 @@ function Game() {
 	// array of battle field
 	this.field = null;
 
-	// current puyo object
+	// puyo objects
 	this.cur = null;
+	this.next = null;
+	this.nextnext = null;
 
 
 }
@@ -48,6 +50,10 @@ Game.prototype = {
 		// canvas
 		this.g = document.getElementById("canvas").getContext("2d");
 
+		// prepare puyos
+		this.next = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
+		this.nextnext = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
+		this.cur = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
 	},
 
 	// draw
@@ -74,19 +80,26 @@ Game.prototype = {
 		if( this.cur != null ) {
 			this.cur.draw(g, 0, 0);
 		}
+
+		// next, nextnext puyo
+		if( this.next != null ) {
+			this.next.drawNext(g, true, 0);
+		}
+		if( this.nextnext != null ) {
+			this.nextnext.drawNext(g, false, 0);
+		}
 	},
 
-	// create new current puyo
-	createCurrentPuyo: function() {
-
+	// prepare new current puyo
+	nextPuyo: function() {
+		// set puyos
+		this.cur = this.next;
+		this.next = this.nextnext;
+		this.nextnext = new CurrentPuyo([xors(1,4), xors(1,4)]);
 	},
 
 	// start game
 	startGame: function() {
-		// prepare current puyo
-		this.createCurrentPuyo();
-
-
 		// run thread
 		this.timer_old = (new Date).getTime();
 		this.thread = setInterval( function(self){ self.mainLoop() }, 1, this);
@@ -155,6 +168,30 @@ function CurrentPuyo(types) {
 CurrentPuyo.prototype = Object.create(PairPuyo.prototype);
 CurrentPuyo.prototype.constructor = CurrentPuyo;
 
+// draw puyo at next area or next next area
+CurrentPuyo.prototype.drawNext = function(g, next, field) {
+	if( next ) {
+		var x = (field == 0 ? Game.NEXT_X0 : Game.NEXT_X1);
+
+		// draw at next area
+		g.drawImage( 
+			image.puyo[this.types[0]-1], 
+			x, Game.NEXT_Y, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+		g.drawImage( 
+			image.puyo[this.types[1]-1], 
+			x, Game.NEXT_Y + Game.BLOCK_SIZE, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+	} else {
+		var x = (field == 0 ? Game.NEXTNEXT_X0 : Game.NEXTNEXT_X1);
+
+		// draw at next next area
+		g.drawImage( 
+			image.puyo[this.types[0]-1], 
+			x, Game.NEXTNEXT_Y, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+		g.drawImage( 
+			image.puyo[this.types[1]-1], 
+			x, Game.NEXTNEXT_Y + Game.BLOCK_SIZE, Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+	}
+};
 
 /*-----------------------------------------------
  * Puyo Class

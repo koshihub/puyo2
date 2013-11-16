@@ -20,8 +20,8 @@ Main.prototype = {
 	init: function() {
 
 		// network
-		this.network = new Network();
-		network.init();
+		// this.network = new Network();
+		// network.init();
 
 		// dom
 		this.dom = new Dom();
@@ -50,6 +50,7 @@ Main.prototype = {
 		var self = this;
 
 		// send enter room request
+		/*
 		network.sendMessage('room:enter', {roomID: n}, function(ret) {
 
 			if( ret.result ) {
@@ -67,6 +68,19 @@ Main.prototype = {
 			}
 
 		});
+		*/
+
+		// set dom
+		self.dom.set(Dom.BATTLE);
+
+		// init game object
+		self.game = new Game();
+		self.game.init();
+
+		// random seed
+		xors.seed(12345);
+		
+		self.game.startGame();
 	},
 
 	// someone entered a room

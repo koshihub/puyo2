@@ -32,6 +32,15 @@ Game.OJAMA_H = 72;
 Game.CANVAS_W = Game.FIELD_W * 2 + Game.CENTER_W;
 Game.CANVAS_H = Game.FIELD_H + Game.OJAMA_H;
 
+// next area position
+Game.NEXT_X0 = Game.FIELD_W + Game.CENTER_W/4;
+Game.NEXT_X1 = Game.FIELD_W + Game.CENTER_W/4*3 - Game.BLOCK_SIZE;
+Game.NEXT_Y = Game.OJAMA_H + Game.BLOCK_SIZE;
+Game.NEXTNEXT_X0 = Game.NEXT_X0 + Game.BLOCK_SIZE/2;
+Game.NEXTNEXT_X1 = Game.NEXT_X1 - Game.BLOCK_SIZE/2;
+Game.NEXTNEXT_Y = Game.NEXT_Y + Game.BLOCK_SIZE*2;
+
+
 //----------------------------------------------
 // values
 //----------------------------------------------
