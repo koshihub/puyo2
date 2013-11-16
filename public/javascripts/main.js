@@ -69,7 +69,7 @@ Main.prototype = {
 		});
 	},
 
-	// someone entered room
+	// someone entered a room
 	roomEntered: function(roomID, userInfo) {
 
 		if(roomID >= 0 && roomID < this.roomCount) {
@@ -78,10 +78,27 @@ Main.prototype = {
 				this.rooms[roomID].members.push(userInfo);
 			}
 
-			console.log(this.rooms[roomID].members);
-
 			// change state
 			this.dom.changeRoomState(roomID, this.rooms[roomID].members);
+		}
+
+	},
+
+	// someone leaved a room
+	roomLeaved: function(roomID, userInfo) {
+
+		if(roomID >= 0 && roomID < this.roomCount) {
+			var members = this.rooms[roomID].members;
+			for(var i=0; i<members.length; i++) {
+				if(members[i].username == userInfo.username) {
+					// remove
+					members.splice(i, 1);
+
+					// change state
+					this.dom.changeRoomState(roomID, members);
+					break;
+				}
+			}
 		}
 
 	},

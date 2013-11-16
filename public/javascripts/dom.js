@@ -69,8 +69,10 @@ Dom.prototype = {
 		// full
 		if( members.length == 2 ) {
 			obj.setAttribute("class", "room_button_full");
+		} else {
+			obj.setAttribute("class", "room_button");
 		}
-		
+
 	},
 
 /*

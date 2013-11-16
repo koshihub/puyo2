@@ -38,7 +38,6 @@ Room.prototype = {
 				// create usernames
 				for( var i=0; i<self.rooms[roomID].members.length; i++ ) {
 					members[i] = self.rooms[roomID].members[i].userInfo;
-					// console.log(members[i]);
 				}
 			} else {
 				func({result: false, message: "The room is full"});
@@ -46,11 +45,14 @@ Room.prototype = {
 			}
 
 			// broadcast
-			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.session.userInfo});
+			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.userInfo});
 
 			// success
 			func({result: true, members: members});
 
+			//------------------------------------------
+			// for debug
+			//------------------------------------------
 			self.printStatus();
 		});
 
@@ -62,9 +64,28 @@ Room.prototype = {
 	},
 
 	// disconnected event
-	disconnectedUser: function(handshake) {
+	disconnectedUser: function(socket) {
+		var handshake = socket.handshake;
 
-		console.log(handshake.sessionID);
+		// remove the user from rooms
+		for(var i=0; i<this.roomCount; i++) {
+			var members = this.rooms[i].members;
+			for(var j=0; j<members.length; j++) {
+				if(members[j].sessionID == handshake.sessionID) {
+					// remove
+					members.splice(j, 1);
+
+					// broadcast
+					socket.broadcast.emit("room:leaved", {roomID: i, userInfo: handshake.userInfo});
+					break;
+				}
+			}
+		}
+
+		//------------------------------------------
+		// for debug
+		//------------------------------------------
+		self.printStatus();
 	},
 
 	// debug

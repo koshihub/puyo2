@@ -25,10 +25,14 @@ Network.prototype = {
 
 			// someone entered a room
 			self.socket.on("room:entered", function(message) {
-
 				// update the dom
 				main.roomEntered(message.roomID, message.userInfo);
+			});
 
+			// someone leaved a room
+			self.socket.on("room:leaved", function(message) {
+				// update the dom
+				main.roomLeaved(message.roomID, message.userInfo);
 			});
 
 		});

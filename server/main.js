@@ -39,7 +39,7 @@ Server.prototype = {
 		    // disconnect
 		    socket.on('disconnect', function() {
 		    	console.log(socket.handshake.userInfo.username + " was disconnected.");
-		    	self.room.disconnectedUser(socket.handshake);
+		    	self.room.disconnectedUser(socket);
 		    });
 
 		    // set room related event
