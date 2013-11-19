@@ -364,20 +364,15 @@ CurrentPuyo.prototype.fix = function() {
 
 // Rotate puyo
 CurrentPuyo.prototype.rotate = function(d) {
-	if( d == null ) {
-		// move angle
-		if( this.angle != this.rot*90 ) {
-			this.angle = (this.angle + this.rotateSpeed + 360) % 360;
-		}
-	} else {
+	if( d != null ) {
 		// rotate
 		this.rot = (this.rot + d + 4) % 4;
 
 		// set rotate speed
 		if( d > 0 ) {
-			this.rotateSpeed = 30;
+			this.rotateSpeed = Game.ROTATE_SPEED;
 		} else {
-			this.rotateSpeed = -30;
+			this.rotateSpeed = -Game.ROTATE_SPEED;
 		}
 		
 		// check collision
@@ -404,10 +399,16 @@ CurrentPuyo.prototype.rotate = function(d) {
 					// rotate once more
 					this.pos[0] -= sign*Game.BLOCK_SIZE;
 					this.rotate(d);
+					return;
 				}
 				break;
 			}
 		}
+	}
+
+	// move angle
+	if( this.angle != this.rot*90 ) {
+		this.angle = (this.angle + this.rotateSpeed + 360) % 360;
 	}
 };
 

@@ -52,6 +52,9 @@ Game.FPS = 30;
 Game.GRAVITY = 2;
 Game.MAXSPEED = 8;
 
+// Rotate
+Game.ROTATE_SPEED = 45;
+
 // Frames
 Game.PUYOANIME_FRAMES = 12;	// animation Frames
 Game.FALL_FRAMES = 15;	// natural fall frames
