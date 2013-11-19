@@ -50,3 +50,8 @@ Game.FPS = 30;
 
 // Gravity
 Game.GRAVITY = 2;
+Game.MAXSPEED = 8;
+
+// Frames
+Game.PUYOANIME_FRAMES = 12;	// animation Frames
+Game.FALL_FRAMES = 30;	// natural fall frames
