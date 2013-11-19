@@ -128,6 +128,15 @@ Game.prototype = {
 		this.nextnext = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)], this);
 	},
 
+	// check collision
+	checkCollision: function(index) {
+		if( index[0] < 0 || index[0] >= 6 || this.field[0][index[0]][index[1]] != 0 ) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+
 	// start game
 	startGame: function() {
 		var p = new Puyo(1, [1, 3], 0);
@@ -151,6 +160,12 @@ Game.prototype = {
 
 			if( advancedFrameCount > 1 ) {
 				console.log("skipped frame count:" + (advancedFrameCount-1));
+			}
+
+			// rotation of current puyo
+			if( this.cur != null ) {
+				if( key.keyQueue.z ) this.cur.rotate( 1 );
+				if( key.keyQueue.x ) this.cur.rotate( -1 );
 			}
 
 			// natural fall of current puyo
@@ -199,6 +214,9 @@ Game.prototype = {
 
 			// draw
 			this.draw();
+
+			// reset the key state
+			key.keyQueue.reset();
 
 			this.timer_old += advancedFrameCount * (1000/Game.FPS);
 		}
@@ -324,6 +342,40 @@ CurrentPuyo.prototype.fix = function() {
 	}
 };
 
+// Rotate puyo
+CurrentPuyo.prototype.rotate = function(d) {
+	// rotate
+	this.rot = (this.rot + d + 4) % 4;
+	
+	// check collision
+	var p = this.getIndex();
+	if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
+		switch( this.rot ) {
+		case 0:
+			// move upward
+			this.pos[1] = (10-p[0][1])*Game.BLOCK_SIZE;
+
+			// reset natural fall timer
+			this.fallTimer = Game.FALL_FRAMES;
+			break;
+		case 1:
+		case 3:
+			var sign = 2-this.rot;
+		
+			// move position
+			this.pos[0] += sign*Game.BLOCK_SIZE;
+			
+			// check collision once more
+			p = this.getIndex();
+			if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
+				// rotate once more
+				this.pos[0] -= sign*Game.BLOCK_SIZE;
+				this.rotate(d);
+			}
+			break;
+		}
+	}
+};
 
 /*-----------------------------------------------
  * Puyo Class
