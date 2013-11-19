@@ -162,8 +162,8 @@ Game.prototype = {
 				console.log("skipped frame count:" + (advancedFrameCount-1));
 			}
 
-			// rotation of current puyo
 			if( this.cur != null ) {
+				// rotation of current puyo
 				if( key.keyQueue.z ) {
 					this.cur.rotate( 1 );
 				}
@@ -172,6 +172,17 @@ Game.prototype = {
 				}
 				else {
 					this.cur.rotate();
+				}
+
+				// move of current puyo
+				if( key.keyQueue.l || key.keyQueue.r ) {
+					// reset timer
+					this.cur.move(0);
+				}
+				if( key.keyState.l ) {
+					this.cur.move(-1);
+				} else if( key.keyState.r ) {
+					this.cur.move(1);
 				}
 			}
 
@@ -298,6 +309,7 @@ function CurrentPuyo(types, obj) {
 
 	// timers
 	this.fallTimer = 0;
+	this.moveTimer = 0;
 
 }
 
@@ -409,6 +421,29 @@ CurrentPuyo.prototype.rotate = function(d) {
 	// move angle
 	if( this.angle != this.rot*90 ) {
 		this.angle = (this.angle + this.rotateSpeed + 360) % 360;
+	}
+};
+
+// Move puyo
+CurrentPuyo.prototype.move = function(d) {
+	if( d == 0 ) {
+		// reset timer
+		this.moveTimer = 0;
+	} else {
+		if( this.moveTimer == 0 ) {
+			this.moveTimer = Game.MOVE_FRAMES;
+
+			// move
+			this.pos[0] += d * Game.BLOCK_SIZE;
+
+			// check collision
+			var p = this.getIndex();
+			if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
+				this.pos[0] += -d * Game.BLOCK_SIZE;
+			}
+		} else {
+			this.moveTimer --;
+		}
 	}
 };
 

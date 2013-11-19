@@ -57,4 +57,5 @@ Game.ROTATE_SPEED = 45;
 
 // Frames
 Game.PUYOANIME_FRAMES = 12;	// animation Frames
-Game.FALL_FRAMES = 15;	// natural fall frames
+Game.FALL_FRAMES = 5;	// natural fall frames
+Game.MOVE_FRAMES = 1;	// move frames
