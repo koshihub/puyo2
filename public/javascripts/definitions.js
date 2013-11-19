@@ -50,7 +50,7 @@ Game.FPS = 30;
 
 // Gravity
 Game.GRAVITY = 2;
-Game.MAXSPEED = 8;
+Game.MAXSPEED = 12;
 
 // Rotate
 Game.ROTATE_SPEED = 45;

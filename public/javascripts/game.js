@@ -450,7 +450,7 @@ Puyo.prototype = {
 
 			if( this.fallDistance - this.spy <= 0 ) {
 				// fall end
-				this.pos[1] += this.spy - this.fallDistance;
+				this.pos[1] += this.fallDistance;
 				this.fallDistance = 0;
 				return false;
 			} else {
