@@ -164,8 +164,15 @@ Game.prototype = {
 
 			// rotation of current puyo
 			if( this.cur != null ) {
-				if( key.keyQueue.z ) this.cur.rotate( 1 );
-				if( key.keyQueue.x ) this.cur.rotate( -1 );
+				if( key.keyQueue.z ) {
+					this.cur.rotate( 1 );
+				}
+				else if( key.keyQueue.x ) {
+					this.cur.rotate( -1 );
+				}
+				else {
+					this.cur.rotate();
+				}
 			}
 
 			// natural fall of current puyo
@@ -235,6 +242,9 @@ function PairPuyo(types, pos, rot, obj) {
 	this.pos = [pos[0], pos[1]];
 	this.rot = rot;
 
+	// for rotate animation
+	this.angle = this.rot * 90;
+	this.rotateSpeed = 0;
 }
 
 PairPuyo.prototype = {
@@ -250,10 +260,20 @@ PairPuyo.prototype = {
 			x, 
 			y, 
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+		/*
 		g.drawImage(
 			image.puyo[this.types[1]-1],
 			x + ((this.rot-2)%2)*Game.BLOCK_SIZE, 
 			y + ((1-this.rot)%2)*Game.BLOCK_SIZE,
+			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
+		*/
+
+		var center = [x + Game.BLOCK_SIZE/2, y + Game.BLOCK_SIZE/2];
+		var a = this.angle / 180 * Math.PI;
+		var p = [center[0]-Math.sin(a)*Game.BLOCK_SIZE, center[1]+Math.cos(a)*Game.BLOCK_SIZE];
+		g.drawImage(
+			image.puyo[this.types[1]-1],
+			p[0] - Game.BLOCK_SIZE/2, p[1] - Game.BLOCK_SIZE/2,
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 	},
 
@@ -344,35 +364,49 @@ CurrentPuyo.prototype.fix = function() {
 
 // Rotate puyo
 CurrentPuyo.prototype.rotate = function(d) {
-	// rotate
-	this.rot = (this.rot + d + 4) % 4;
-	
-	// check collision
-	var p = this.getIndex();
-	if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
-		switch( this.rot ) {
-		case 0:
-			// move upward
-			this.pos[1] = (10-p[0][1])*Game.BLOCK_SIZE;
+	if( d == null ) {
+		// move angle
+		if( this.angle != this.rot*90 ) {
+			this.angle = (this.angle + this.rotateSpeed + 360) % 360;
+		}
+	} else {
+		// rotate
+		this.rot = (this.rot + d + 4) % 4;
 
-			// reset natural fall timer
-			this.fallTimer = Game.FALL_FRAMES;
-			break;
-		case 1:
-		case 3:
-			var sign = 2-this.rot;
+		// set rotate speed
+		if( d > 0 ) {
+			this.rotateSpeed = 30;
+		} else {
+			this.rotateSpeed = -30;
+		}
 		
-			// move position
-			this.pos[0] += sign*Game.BLOCK_SIZE;
+		// check collision
+		var p = this.getIndex();
+		if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
+			switch( this.rot ) {
+			case 0:
+				// move upward
+				this.pos[1] = (10-p[0][1])*Game.BLOCK_SIZE;
+
+				// reset natural fall timer
+				this.fallTimer = Game.FALL_FRAMES;
+				break;
+			case 1:
+			case 3:
+				var sign = 2-this.rot;
 			
-			// check collision once more
-			p = this.getIndex();
-			if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
-				// rotate once more
-				this.pos[0] -= sign*Game.BLOCK_SIZE;
-				this.rotate(d);
+				// move position
+				this.pos[0] += sign*Game.BLOCK_SIZE;
+				
+				// check collision once more
+				p = this.getIndex();
+				if( this.game.checkCollision(p[0]) || this.game.checkCollision(p[1]) ) {
+					// rotate once more
+					this.pos[0] -= sign*Game.BLOCK_SIZE;
+					this.rotate(d);
+				}
+				break;
 			}
-			break;
 		}
 	}
 };
