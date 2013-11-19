@@ -54,4 +54,4 @@ Game.MAXSPEED = 8;
 
 // Frames
 Game.PUYOANIME_FRAMES = 12;	// animation Frames
-Game.FALL_FRAMES = 30;	// natural fall frames
+Game.FALL_FRAMES = 1;	// natural fall frames

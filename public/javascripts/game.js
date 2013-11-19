@@ -54,9 +54,9 @@ Game.prototype = {
 		this.g = document.getElementById("canvas").getContext("2d");
 
 		// prepare puyos
-		this.next = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
-		this.nextnext = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
-		this.cur = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)]);
+		this.next = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)], this);
+		this.nextnext = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)], this);
+		this.cur = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)], this);
 	},
 
 	// draw
@@ -125,14 +125,14 @@ Game.prototype = {
 		// set puyos
 		this.cur = this.next;
 		this.next = this.nextnext;
-		this.nextnext = new CurrentPuyo([xors(1,4), xors(1,4)]);
+		this.nextnext = new CurrentPuyo([xors.rand(1,4), xors.rand(1,4)], this);
 	},
 
 	// start game
 	startGame: function() {
-		var p = new Puyo(1, [0, 0], 0);
-		this.fallQueue.push(p);
-		p.fall(6);
+		var p = new Puyo(1, [1, 3], 0);
+		//this.fallQueue.push(p);
+		//p.fall(3);
 
 		// run thread
 		this.timer_old = (new Date).getTime();
@@ -151,6 +151,13 @@ Game.prototype = {
 
 			if( advancedFrameCount > 1 ) {
 				console.log("skipped frame count:" + (advancedFrameCount-1));
+			}
+
+			// natural fall of current puyo
+			if( this.cur != null ) {
+				if( !this.cur.nFall() ) {
+					this.cur = null;
+				}
 			}
 
 			// animate puyos
@@ -185,6 +192,11 @@ Game.prototype = {
 				}
 			}
 
+			// new current puyo
+			if( this.cur == null && this.fallQueue.length == 0 && this.animeQueue.length == 0 ) {
+				this.nextPuyo();
+			}
+
 			// draw
 			this.draw();
 
@@ -197,7 +209,9 @@ Game.prototype = {
 /*-----------------------------------------------
  * PairPuyo Class
  *----------------------------------------------- */
-function PairPuyo(types, pos, rot) {
+function PairPuyo(types, pos, rot, obj) {
+
+	this.game = obj;
 
 	this.types = [types[0], types[1]];
 	this.pos = [pos[0], pos[1]];
@@ -225,28 +239,99 @@ PairPuyo.prototype = {
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
 	},
 
+	// get index
+	getIndex: function() {
+		var p1 = [this.pos[0], this.pos[1]];
+		var p2 = [this.pos[0] + ((this.rot-2)%2)*Game.BLOCK_SIZE, this.pos[1] + ((1-this.rot)%2)*Game.BLOCK_SIZE];
+
+		return [ [p1[0]/Game.BLOCK_SIZE, 11-p1[1]/Game.BLOCK_SIZE],
+				 [p2[0]/Game.BLOCK_SIZE, 11-p2[1]/Game.BLOCK_SIZE] ];
+	},
+
 };
 
 
 /*-----------------------------------------------
  * CurrentPuyo Class
  *----------------------------------------------- */
-function CurrentPuyo(types) {
+function CurrentPuyo(types, obj) {
 
-	PairPuyo.call(this, types, [Game.BLOCK_SIZE*2, -Game.BLOCK_SIZE], 2);
+	PairPuyo.call(this, types, [Game.BLOCK_SIZE*2, -Game.BLOCK_SIZE], 2, obj);
+
+	// timers
+	this.fallTimer = 0;
 
 }
 
 CurrentPuyo.prototype = Object.create(PairPuyo.prototype);
 CurrentPuyo.prototype.constructor = CurrentPuyo;
 
+// Natural fall
+CurrentPuyo.prototype.nFall = function() {
+	if( this.fallTimer == 0 ) {
+		this.fallTimer = Game.FALL_FRAMES;
+
+		// fall
+		var p;
+		this.pos[1] += Game.BLOCK_SIZE;
+		p = this.getIndex();
+		if( this.game.field[0][p[0][0]][p[0][1]] != 0 || 
+			this.game.field[0][p[1][0]][p[1][1]] != 0 ||
+			p[0][1] < 0 || p[1][1] < 0 ) 
+		{
+			// fix
+			this.pos[1] -= Game.BLOCK_SIZE;
+			this.fix();
+			return false;
+		}
+	} else {
+		this.fallTimer --;
+	}
+
+	return true;
+};
+
+// Fix puyo
+CurrentPuyo.prototype.fix = function() {
+	var p = this.getIndex();
+
+	// count fall blocks and fix
+	for( var t=0; t<2; t++ ) {
+		var fallBlocks = 0;
+		for( var i=p[t][1]-1; i>=0; i-- ) {
+			if( this.game.field[0][p[t][0]][i] != 0 ) {
+				break;
+			}
+			fallBlocks ++;
+		}
+
+		// adjust fallBlocks
+		if( this.rot == 0 && t == 0 ) {
+			fallBlocks --;
+		} else if( this.rot == 2 && t == 1 ) {
+			fallBlocks --;
+		}
+
+		// fix
+		var puyo = new Puyo(this.types[t], p[t], 0);
+		if( fallBlocks == 0 ) {
+			this.game.animeQueue.push(puyo);
+			puyo.animate(true);
+		} else {
+			this.game.fallQueue.push(puyo);
+			puyo.fall(fallBlocks);
+		}
+	}
+};
+
+
 /*-----------------------------------------------
  * Puyo Class
  *----------------------------------------------- */
-function Puyo(type, pos, which) {
+function Puyo(type, index, which) {
 
 	this.type = type;
-	this.pos = [pos[0], pos[1]];
+	this.pos = [index[0] * Game.BLOCK_SIZE, (11-index[1]) * Game.BLOCK_SIZE];
 	this.which = which;
 
 	// fall related
@@ -264,7 +349,7 @@ Puyo.prototype = {
 		g.drawImage(
 			image.puyo[this.type-1],
 			this.pos[0] + (Game.CENTER_W + Game.FIELD_W) * this.which,
-			this.pos[1] + Game.OJAMA_H,
+			this.pos[1] + Game.OJAMA_H + (this.animeFrame%4)*2,
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE - (this.animeFrame%4)*2);
 	},
 
