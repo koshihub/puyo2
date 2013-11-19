@@ -184,6 +184,17 @@ Game.prototype = {
 				} else if( key.keyState.r ) {
 					this.cur.move(1);
 				}
+
+				// fall of current puyo
+				if( key.keyQueue.d ) {
+					// reset timer
+					this.cur.fall(true);
+				}
+				if( key.keyState.d ) {
+					if( !this.cur.fall(false) ) {
+						this.cur = null;
+					}
+				}
 			}
 
 			// natural fall of current puyo
@@ -308,6 +319,7 @@ function CurrentPuyo(types, obj) {
 	PairPuyo.call(this, types, [Game.BLOCK_SIZE*2, -Game.BLOCK_SIZE], 2, obj);
 
 	// timers
+	this.nfallTimer = 0;
 	this.fallTimer = 0;
 	this.moveTimer = 0;
 
@@ -318,8 +330,8 @@ CurrentPuyo.prototype.constructor = CurrentPuyo;
 
 // Natural fall
 CurrentPuyo.prototype.nFall = function() {
-	if( this.fallTimer == 0 ) {
-		this.fallTimer = Game.FALL_FRAMES;
+	if( this.nfallTimer == 0 ) {
+		this.nfallTimer = Game.NFALL_FRAMES;
 
 		// fall
 		var p;
@@ -335,7 +347,39 @@ CurrentPuyo.prototype.nFall = function() {
 			return false;
 		}
 	} else {
-		this.fallTimer --;
+		this.nfallTimer --;
+	}
+
+	return true;
+};
+
+// fall
+CurrentPuyo.prototype.fall = function(reset) {
+	if( reset ) {
+		this.fallTimer = 0;
+	} else {
+		if( this.fallTimer == 0 ) {
+			this.fallTimer = Game.FALL_FRAMES;
+
+			// fall
+			var p;
+			this.pos[1] += Game.BLOCK_SIZE;
+			p = this.getIndex();
+			if( this.game.field[0][p[0][0]][p[0][1]] != 0 || 
+				this.game.field[0][p[1][0]][p[1][1]] != 0 ||
+				p[0][1] < 0 || p[1][1] < 0 ) 
+			{
+				// fix
+				this.pos[1] -= Game.BLOCK_SIZE;
+				this.fix();
+				return false;
+			}
+		} else {
+			this.fallTimer --;
+		}
+
+		// reset natural fall timer
+		this.nfallTimer = Game.NFALL_FRAMES;
 	}
 
 	return true;
@@ -396,7 +440,7 @@ CurrentPuyo.prototype.rotate = function(d) {
 				this.pos[1] = (10-p[0][1])*Game.BLOCK_SIZE;
 
 				// reset natural fall timer
-				this.fallTimer = Game.FALL_FRAMES;
+				this.nfallTimer = Game.NFALL_FRAMES;
 				break;
 			case 1:
 			case 3:

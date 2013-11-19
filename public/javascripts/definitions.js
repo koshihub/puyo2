@@ -46,7 +46,7 @@ Game.NEXTNEXT_Y = Game.NEXT_Y + Game.BLOCK_SIZE*2;
 //----------------------------------------------
 
 // FPS
-Game.FPS = 30;
+Game.FPS = 60;
 
 // Gravity
 Game.GRAVITY = 2;
@@ -56,6 +56,7 @@ Game.MAXSPEED = 12;
 Game.ROTATE_SPEED = 45;
 
 // Frames
-Game.PUYOANIME_FRAMES = 12;	// animation Frames
-Game.FALL_FRAMES = 5;	// natural fall frames
-Game.MOVE_FRAMES = 1;	// move frames
+Game.PUYOANIME_FRAMES = 16;	// animation Frames
+Game.NFALL_FRAMES = 30;	// natural fall frames
+Game.FALL_FRAMES = 2;	// key down fall frames
+Game.MOVE_FRAMES = 3;	// move frames
