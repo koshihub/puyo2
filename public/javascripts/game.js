@@ -29,6 +29,7 @@ function Game() {
 	// puyo queues
 	this.fallQueue = []; // fall puyo
 	this.animeQueue = []; // animation puyo
+	this.vanishQueue = []; // vanish puyo
 
 }
 
@@ -106,6 +107,11 @@ Game.prototype = {
 			this.animeQueue[i].draw(g);
 		}
 
+		// vanishing puyo
+		for(var i=0, j=this.vanishQueue.length; i<j; i++) {
+			this.vanishQueue[i].draw(g);
+		}
+
 		// current puyo
 		if( this.cur != null ) {
 			this.cur.draw(g, 0);
@@ -137,12 +143,85 @@ Game.prototype = {
 		}
 	},
 
+	// vanish
+	vanish: function() {
+		var checked = new Array(6);
+		for(var i=0; i<6; i++) {
+			checked[i] = new Array(13);
+			for(var j=0; j<13; j++) {
+				checked[i][j] = false;
+			}
+		}
+
+		var rec = function(type, x, y, list) {
+			if( x < 0 || x > 5 || y < 0 || y > 12 || checked[x][y] ) {
+				return;
+			}
+
+			if( this.field[0][x][y] == type ) {
+				list.push([x,y]);
+				checked[x][y] = true;
+				rec.call(this, type, x+1, y, list);
+				rec.call(this, type, x-1, y, list);
+				rec.call(this, type, x, y+1, list);
+				rec.call(this, type, x, y-1, list);
+			}
+		};
+
+		// find vanish puyos
+		for(var x=0; x<6; x++) {
+			for(var y=0; y<13; y++) {
+				if( !checked[x][y] ) {
+					var type = this.field[0][x][y];
+					if( type != 0 ) {
+						var list = [];
+						rec.call(this, type, x, y, list);
+
+						// length of same puyos
+						var len = list.length;
+						if( len >= 4 ) {
+							// vanish
+							for( var k=0; k<len; k++ ) {
+								var puyo = new Puyo(type, list[k], 0);
+								this.vanishQueue.push(puyo);
+								puyo.vanish(true);
+
+								this.field[0][list[k][0]][list[k][1]] = 0;
+							}
+						}
+					} else {
+						checked[x][y] = true;
+					}
+				}
+			}
+		}
+	},
+
+	// fall all puyo
+	fallAllPuyo: function() {
+		for(var x=0; x<6; x++) {
+			var blank = 0;
+			for(var y=0; y<13; y++) {
+				var type = this.field[0][x][y];
+				if( type == 0 ) {
+					blank ++;
+				} else {
+					if( blank > 0 ) {
+						// fall
+						var puyo = new Puyo(type, [x,y], 0);
+						this.fallQueue.push(puyo);
+						puyo.fall(blank);
+
+						// reset
+						this.field[0][x][y] = 0;
+					}
+				}
+			}
+		}
+	},
+
 	// start game
 	startGame: function() {
-		var p = new Puyo(1, [1, 3], 0);
-		//this.fallQueue.push(p);
-		//p.fall(3);
-
 		// run thread
 		this.timer_old = (new Date).getTime();
 		this.thread = setInterval( function(self){ self.mainLoop() }, 1, this);
@@ -236,9 +315,38 @@ Game.prototype = {
 				}
 			}
 
-			// new current puyo
-			if( this.cur == null && this.fallQueue.length == 0 && this.animeQueue.length == 0 ) {
-				this.nextPuyo();
+			// vanish puyos
+			var fallFlag = false;
+			len = this.vanishQueue.length;
+			for(var i=0; i<len; i++) {
+				var puyo = this.vanishQueue[i];
+				if( !puyo.vanish() ) {
+					fallFlag = true;
+
+					// remove from vanish queue
+					this.vanishQueue.splice(i, 1);
+					i--;
+					len--;
+				}
+			}
+
+			// fall puyos if some puyos vanished
+			if( fallFlag ) {
+				this.fallAllPuyo();
+			}
+
+			// vanish
+			if( this.cur == null && 
+				this.fallQueue.length == 0 && 
+				this.animeQueue.length == 0 &&
+				this.vanishQueue.length == 0 ) 
+			{
+				this.vanish();
+
+				// create next puyo if vanishQueue is empty
+				if( this.vanishQueue.length == 0 ) {
+					this.nextPuyo();
+				}
 			}
 
 			// draw
@@ -319,7 +427,7 @@ function CurrentPuyo(types, obj) {
 	PairPuyo.call(this, types, [Game.BLOCK_SIZE*2, -Game.BLOCK_SIZE], 2, obj);
 
 	// timers
-	this.nfallTimer = 0;
+	this.nfallTimer = Game.NFALL_FRAMES;
 	this.fallTimer = 0;
 	this.moveTimer = 0;
 
@@ -506,17 +614,22 @@ function Puyo(type, index, which) {
 
 	// anime related
 	this.animeFrame = 0;
+
+	// vanish related
+	this.vanishFrame = 0;
 }
 
 Puyo.prototype = {
 
 	// draw
 	draw: function(g) {
-		g.drawImage(
-			image.puyo[this.type-1],
-			this.pos[0] + (Game.CENTER_W + Game.FIELD_W) * this.which,
-			this.pos[1] + Game.OJAMA_H + (this.animeFrame%4)*2,
-			Game.BLOCK_SIZE, Game.BLOCK_SIZE - (this.animeFrame%4)*2);
+		if( this.vanishFrame % 3 == 0) {
+			g.drawImage(
+				image.puyo[this.type-1],
+				this.pos[0] + (Game.CENTER_W + Game.FIELD_W) * this.which,
+				this.pos[1] + Game.OJAMA_H + (this.animeFrame%4)*2,
+				Game.BLOCK_SIZE, Game.BLOCK_SIZE - (this.animeFrame%4)*2);
+		}
 	},
 
 	// let the puyo fall n blocks
@@ -554,6 +667,23 @@ Puyo.prototype = {
 				return false;
 			} else {
 				this.animeFrame --;
+			}
+		}
+
+		return true;
+	},
+
+	// let the puyo vanish
+	vanish: function(isStart) {
+		if( isStart == true ) {
+			// start vanishing
+			this.vanishFrame = Game.PUYOVANISH_FRAMES;
+		} else {
+			if( this.vanishFrame == 0 ) {
+				// vanish
+				return false;
+			} else {
+				this.vanishFrame --;
 			}
 		}
 

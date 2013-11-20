@@ -57,6 +57,7 @@ Game.ROTATE_SPEED = 45;
 
 // Frames
 Game.PUYOANIME_FRAMES = 16;	// animation Frames
+Game.PUYOVANISH_FRAMES = 18; // vanish Frames
 Game.NFALL_FRAMES = 30;	// natural fall frames
 Game.FALL_FRAMES = 2;	// key down fall frames
 Game.MOVE_FRAMES = 3;	// move frames
