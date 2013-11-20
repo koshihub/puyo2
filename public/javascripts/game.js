@@ -390,13 +390,6 @@ PairPuyo.prototype = {
 			x, 
 			y, 
 			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-		/*
-		g.drawImage(
-			image.puyo[this.types[1]-1],
-			x + ((this.rot-2)%2)*Game.BLOCK_SIZE, 
-			y + ((1-this.rot)%2)*Game.BLOCK_SIZE,
-			Game.BLOCK_SIZE, Game.BLOCK_SIZE);
-		*/
 
 		var center = [x + Game.BLOCK_SIZE/2, y + Game.BLOCK_SIZE/2];
 		var a = this.angle / 180 * Math.PI;
