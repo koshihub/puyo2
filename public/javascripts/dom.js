@@ -42,6 +42,12 @@ Dom.prototype = {
 			obj.width = Game.CANVAS_W;
 			obj.height = Game.CANVAS_H;
 			document.body.appendChild(obj);
+
+			// leave button
+			obj = document.createElement("a");
+			obj.innerHTML = "leave";
+			obj.setAttribute("onclick", "main.roomLeave()");
+			document.body.appendChild(obj);
 			break;
 			
 		// freeze
@@ -62,7 +68,7 @@ Dom.prototype = {
 		var html = "";
 
 		for(var i=0; i<members.length; i++) {
-			html += members[i].username + "(" + members[i].rate + ")<br>";
+			html += members[i].name + "(" + members[i].rate + ")<br>";
 		}
 		obj.innerHTML = html;
 

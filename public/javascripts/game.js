@@ -86,10 +86,15 @@ Game.prototype = {
 		// prepare current puyo
 		this.createCurrentPuyo();
 
-
 		// run thread
 		this.timer_old = (new Date).getTime();
 		this.thread = setInterval( function(self){ self.mainLoop() }, 1, this);
+	},
+
+	// end game
+	endGame: function() {
+		// clear interval
+		clearInterval(this.thread);
 	},
 
 	// main loop

@@ -65,7 +65,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new TwitterStrategy({
 	consumerKey: "GxNxmXIZRSIkIrNFWKN5A",
 	consumerSecret: "XSEaLCtFiZx0whx3dALAX0OgSgVN8anLs0OxtQ9VOIo",
-	callbackURL: "http://192.168.51.51:3000/auth/twitter/callback"
+	callbackURL: "http://172.20.10.4:3000/auth/twitter/callback"
 }, function(token, tokenSecret, profile, done) {
 
 	// save sassion information
@@ -130,12 +130,11 @@ io.set('authorization', function(handshakeData, callback) {
                 handshakeData.session = new express.session.Session(handshakeData, session);
 
                 // Make it easy to retrieve user data
-                handshakeData.userInfo = {
-                	username: handshakeData.session.passport.user.username,
-                	rate: 1500,
-                };
+                var user = new (require('./server/user.js').User)();
+                user.init(handshakeData.session.passport.user.username, 1500);
+		        handshakeData.user = user;
 
-                console.log(handshakeData);
+		        console.log(handshakeData.user);
 
                 callback(null, true);
             }

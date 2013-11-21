@@ -26,10 +26,9 @@ Server.prototype = {
 			            socket.handshake.session.touch().save();
 
 		                // Make it easy to retrieve user data
-		                socket.handshake.userInfo = {
-		                	username: socket.handshake.session.passport.user.username,
-		                	rate: 1500,
-		                };
+		                var user = new (require('./user.js').User)();
+		                user.init(socket.handshake.session.passport.user.username, 1500);
+		                socket.handshake.user = user;
 			        });
 		    	} else {
 		    		clearInterval(sessionReloadIntervalID);
@@ -38,7 +37,7 @@ Server.prototype = {
 
 		    // disconnect
 		    socket.on('disconnect', function() {
-		    	console.log(socket.handshake.userInfo.username + " was disconnected.");
+		    	console.log(socket.handshake.user.name + " was disconnected.");
 		    	self.room.disconnectedUser(socket);
 		    });
 

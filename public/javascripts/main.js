@@ -13,6 +13,9 @@ function Main() {
 	for (var i=0; i<this.roomCount; i++) {
 		this.rooms[i] = new RoomState();
 	}
+
+	// variables
+	this.roomID = -1;
 }
 
 Main.prototype = {
@@ -40,6 +43,8 @@ Main.prototype = {
 	// freeze the application
 	freeze: function(err) {
 
+		console.log(err);
+
 		// show freeze dialog
 		this.dom.set(Dom.FREEZE);
 
@@ -56,6 +61,9 @@ Main.prototype = {
 				// set dom
 				self.dom.set(Dom.BATTLE);
 
+				// save roomID
+				self.roomID = n;
+
 				// init game object
 				self.game = new Game();
 				self.game.init();
@@ -69,13 +77,36 @@ Main.prototype = {
 		});
 	},
 
+	// leave room
+	roomLeave: function() {
+		var self = this;
+
+		// send leave room request
+		network.sendMessage('room:leave', {roomID: this.roomID}, function(ret) {
+
+			if( ret.result ) {
+				// end game
+				self.game.endGame();
+
+				// free game object
+				self.game = null;
+
+				// set dom
+				self.dom.set(Dom.LOBBY);
+			}
+			else {
+				console.log(ret.message);
+			}
+		});
+	},
+
 	// someone entered a room
-	roomEntered: function(roomID, userInfo) {
+	roomEntered: function(roomID, user) {
 
 		if(roomID >= 0 && roomID < this.roomCount) {
 			if( this.rooms[roomID].members.length < 2 ) {
 				// push the member
-				this.rooms[roomID].members.push(userInfo);
+				this.rooms[roomID].members.push(user);
 			}
 
 			// change state
@@ -85,12 +116,12 @@ Main.prototype = {
 	},
 
 	// someone leaved a room
-	roomLeaved: function(roomID, userInfo) {
+	roomLeaved: function(roomID, user) {
 
 		if(roomID >= 0 && roomID < this.roomCount) {
 			var members = this.rooms[roomID].members;
 			for(var i=0; i<members.length; i++) {
-				if(members[i].username == userInfo.username) {
+				if(members[i].name == user.name) {
 					// remove
 					members.splice(i, 1);
 

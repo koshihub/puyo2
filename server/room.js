@@ -24,31 +24,25 @@ Room.prototype = {
 			var roomID = message.roomID;
 
 			// check if the roomID is valid
-			if( roomID < 0 && roomID >= self.roomCount ) {
+			if( roomID < 0 || roomID >= self.roomCount ) {
 				func({result: false, message: "Invalid roomID"});
 				return;
 			}
 
 			// save the member
-			var members = [];
 			if( self.rooms[roomID].members.length < 2 ) {
-				// push the member session
-				self.rooms[roomID].members.push(socket.handshake);
-
-				// create usernames
-				for( var i=0; i<self.rooms[roomID].members.length; i++ ) {
-					members[i] = self.rooms[roomID].members[i].userInfo;
-				}
+				// push the user data
+				self.rooms[roomID].members.push(socket.handshake.user);
 			} else {
 				func({result: false, message: "The room is full"});
 				return;
 			}
 
 			// broadcast
-			socket.broadcast.emit("room:entered", {roomID: roomID, userInfo: socket.handshake.userInfo});
+			socket.broadcast.emit("room:entered", {roomID: roomID, user: socket.handshake.user});
 
 			// success
-			func({result: true, members: members});
+			func({result: true, members: self.rooms[roomID].members});
 
 			//------------------------------------------
 			// for debug
@@ -57,8 +51,34 @@ Room.prototype = {
 		});
 
 		// leave a room
-		socket.on("room:leave", function(message) {
+		socket.on("room:leave", function(message, func) {
+			var roomID = message.roomID;
 
+			// check if the roomID is valid
+			if( roomID < 0 || roomID >= self.roomCount ) {
+				func({result: false, message: "Invalid roomID"});
+				return;
+			}
+
+			// remove the member
+			var leaved = false;
+			for( var i=0; i<self.rooms[roomID].members.length; i++ ) {
+				if( self.rooms[roomID].members[i].equal(socket.handshake.user) ) {
+					self.rooms[roomID].members.splice(i,1);
+					leaved = true;
+				}
+			}
+
+			if( !leaved ) {
+				func({result:false, message: "No such a user"});
+				return;
+			}
+
+			// broadcast
+			socket.broadcast.emit("room:leaved", {roomID: roomID, user: socket.handshake.user});
+
+			// success
+			func({result: true, members: self.rooms[roomID].members});
 		});
 
 	},
@@ -76,7 +96,7 @@ Room.prototype = {
 					members.splice(j, 1);
 
 					// broadcast
-					socket.broadcast.emit("room:leaved", {roomID: i, userInfo: handshake.userInfo});
+					socket.broadcast.emit("room:leaved", {roomID: i, user: handshake.user});
 					break;
 				}
 			}
@@ -85,7 +105,7 @@ Room.prototype = {
 		//------------------------------------------
 		// for debug
 		//------------------------------------------
-		self.printStatus();
+		this.printStatus();
 	},
 
 	// debug
@@ -93,7 +113,7 @@ Room.prototype = {
 		for( var i=0; i<this.roomCount; i++ ) {
 			console.log("room[" + i + "] : ");
 			for( var j=0; j<this.rooms[i].members.length; j++ ) {
-				console.log(this.rooms[i].members[j].userInfo);
+				console.log(this.rooms[i].members[j].name);
 			}
 		}
 	}
