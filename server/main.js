@@ -19,6 +19,9 @@ Server.prototype = {
 		// setting connection
 		this.io.sockets.on('connection', function(socket) {
 
+	    	// set socket
+	    	socket.handshake.user.setSocket(socket);
+
 			//Expressのセッションを定期的に更新する
 		    var sessionReloadIntervalID = setInterval(function() {
 		    	if( socket.handshake && socket.handshake.session ) {
@@ -28,6 +31,7 @@ Server.prototype = {
 		                // Make it easy to retrieve user data
 		                var user = new (require('./user.js').User)();
 		                user.init(socket.handshake.session.passport.user.username, 1500);
+		                user.setSocket(socket);
 		                socket.handshake.user = user;
 			        });
 		    	} else {

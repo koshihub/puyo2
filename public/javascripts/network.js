@@ -35,6 +35,11 @@ Network.prototype = {
 				main.roomLeaved(message.roomID, message.user);
 			});
 
+			// recieve a seed
+			self.socket.on("game:seed", function(message) {
+				main.recieveSeed(message.seed);
+			});
+
 		});
 
 		// dissconnect event

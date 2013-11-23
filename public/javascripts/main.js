@@ -21,7 +21,6 @@ function Main() {
 Main.prototype = {
 	// initialize
 	init: function() {
-
 		// network
 		this.network = new Network();
 		network.init();
@@ -37,17 +36,14 @@ Main.prototype = {
 
 		// set dom
 		this.dom.set(Dom.LOBBY);
-
 	},
 
 	// freeze the application
 	freeze: function(err) {
-
 		console.log(err);
 
 		// show freeze dialog
 		this.dom.set(Dom.FREEZE);
-
 	},
 
 	// enter room
@@ -56,7 +52,6 @@ Main.prototype = {
 
 		// send enter room request
 		network.sendMessage('room:enter', {roomID: n}, function(ret) {
-
 			if( ret.result ) {
 				// set dom
 				self.dom.set(Dom.BATTLE);
@@ -67,13 +62,10 @@ Main.prototype = {
 				// init game object
 				self.game = new Game();
 				self.game.init();
-
-				self.game.startGame();
 			}
 			else {
 				console.log(ret.message);
 			}
-
 		});
 	},
 
@@ -102,7 +94,6 @@ Main.prototype = {
 
 	// someone entered a room
 	roomEntered: function(roomID, user) {
-
 		if(roomID >= 0 && roomID < this.roomCount) {
 			if( this.rooms[roomID].members.length < 2 ) {
 				// push the member
@@ -112,12 +103,10 @@ Main.prototype = {
 			// change state
 			this.dom.changeRoomState(roomID, this.rooms[roomID].members);
 		}
-
 	},
 
 	// someone leaved a room
 	roomLeaved: function(roomID, user) {
-
 		if(roomID >= 0 && roomID < this.roomCount) {
 			var members = this.rooms[roomID].members;
 			for(var i=0; i<members.length; i++) {
@@ -131,8 +120,15 @@ Main.prototype = {
 				}
 			}
 		}
-
 	},
+
+	// recieve a seed
+	recieveSeed: function(seed) {
+		if( this.game != null ) {
+			console.log("recieve seed:" + seed);
+			xors.seed(seed);
+		}
+	}
 };
 
 var main = new Main();

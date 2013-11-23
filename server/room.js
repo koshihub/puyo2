@@ -30,9 +30,10 @@ Room.prototype = {
 			}
 
 			// save the member
-			if( self.rooms[roomID].members.length < 2 ) {
+			var members = self.rooms[roomID].members;
+			if( members.length < 2 ) {
 				// push the user data
-				self.rooms[roomID].members.push(socket.handshake.user);
+				members.push(socket.handshake.user);
 			} else {
 				func({result: false, message: "The room is full"});
 				return;
@@ -42,7 +43,15 @@ Room.prototype = {
 			socket.broadcast.emit("room:entered", {roomID: roomID, user: socket.handshake.user});
 
 			// success
-			func({result: true, members: self.rooms[roomID].members});
+			func({result: true, members: members});
+
+			// if there are two members, start to prepare for the battle
+			if( members.length == 2 ) {
+				// create a random seed and send it to client
+				var seed = 9909090;
+				members[0].socket.emit("game:seed", {seed: seed});
+				members[1].socket.emit("game:seed", {seed: seed});
+			}
 
 			//------------------------------------------
 			// for debug
