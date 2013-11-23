@@ -239,6 +239,7 @@ Game.prototype = {
 
 			if( advancedFrameCount > 1 ) {
 				console.log("skipped frame count:" + (advancedFrameCount-1));
+				console.log("> wasteTime: " + wasteTime);
 			}
 
 			if( this.cur != null ) {

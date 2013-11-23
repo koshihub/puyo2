@@ -1,4 +1,6 @@
 
+var URL = "http://127.0.0.1:3000";
+
 /**
  * Module dependencies.
  */
@@ -65,7 +67,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new TwitterStrategy({
 	consumerKey: "GxNxmXIZRSIkIrNFWKN5A",
 	consumerSecret: "XSEaLCtFiZx0whx3dALAX0OgSgVN8anLs0OxtQ9VOIo",
-	callbackURL: "http://192.168.51.51:3000/auth/twitter/callback"
+	callbackURL: URL + "/auth/twitter/callback"
 }, function(token, tokenSecret, profile, done) {
 
 	// save sassion information
